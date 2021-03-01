@@ -1,7 +1,7 @@
 # aws-data-exchange-publisher-coordinator
 This package sets up Lambdas (via CloudFormation) to automatically execute the publication steps for new dataset revisions. Execution is triggered when an S3 manifest file for a new revision is uploaded to this bucket. 
 
-##Prerequisites
+## Prerequisites
 Read the [AWS Data Exchange Publisher Coordinator doc](https://docs.aws.amazon.com/solutions/latest/aws-data-exchange-publisher-coordinator/automated-deployment.html) which describes the architecture of the solution and prerequisites.  
 You should have:
 1. AWS Data Exchange product and data set created.
