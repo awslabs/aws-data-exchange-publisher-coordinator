@@ -204,7 +204,7 @@ Resources:
       cfn_nag:
         rules_to_suppress:   
           - id: "W11"
-            reason: "aws-marketplace:StartChangeSet and aws-marketplace:DescribeEntity do not accept resource level permissions. For dataexchange:UpdateRevision, the revisions are creaed at runtime and are not known a priori."
+            reason: "aws-marketplace:StartChangeSet and aws-marketplace:DescribeEntity do not accept resource level permissions. For dataexchange:UpdateRevision, the revisions are created at runtime and are not known a priori."
   DeploymentBucket:
     Type: AWS::S3::Bucket
     Properties:
