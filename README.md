@@ -1,58 +1,78 @@
 # aws-data-exchange-publisher-coordinator
-AWS Solution for coordinating the publishing steps for a dataset revision based on an S3 manifest file being uploaded to the specified S3 bucket (ManifestBucket).  For details on the format of the manifest file see the associated deployemnt guide. 
+This package sets up Lambdas (via CloudFormation) to automatically execute the publication steps for new dataset revisions. Execution is triggered when an S3 manifest file for a new revision is uploaded to this bucket. 
 
-## Running unit tests for customization
-* Clone the repository, then make the desired code changes to the template.yaml and associated functions
-* Create a local folder to store local scripts and environment variables
-* Use AWS SAM to build, test, and deploy manually
-* Prepare the template template for distribution by replacing the CodeUri in each function with Code: along with S3Bucket: and S3Key: for each function
+## Prerequisites
+Read the [AWS Data Exchange Publisher Coordinator doc](https://docs.aws.amazon.com/solutions/latest/aws-data-exchange-publisher-coordinator/automated-deployment.html) which describes the architecture of the solution and prerequisites.  
+You should have:
+1. AWS Data Exchange product and data set created.
+2. Three existing S3 buckets: 
+    * AssetBucket: For uploading the assets
+    * ManifestBucketLoggingBucket: For logging activities
+    * DistributionBucket: For uploading the Lambda codes.
+3. Python 3.8+
+4. AWS CLI
+4. AWS SAM CLI (separate from above)
+
+## Modify the CloudFormation template with your bucket names
+* Clone the repository, and update the below four S3 buckets in `template.yaml`.
+* In the template snippet below, the `ManifestBucket` parameter sets the name of the bucket to be created by Cloudformation. The other two bucket names are from the preexisting buckets above. 
+* Create a `local` folder in the project directory to store the Cloudformation template output created by SAM build.
+
 ```
-cd source \n
-sam build  \n
-sam package --s3-bucket <bucket> --output-template ../local/aws-data-exchange-publisher-coordinator-SAM.template \n
-sam local invoke "<FunctionName>" -e ./local/<FunctionEventFile>.json \n
-sam deploy --template-file ../local/aws-data-exchange-publisher-coordinator-SAM.template --region <Region> --stack-name <StackName> --capabilities CAPABILITY_IAM --parameter-overrides ManifestBucketLoggingBucket=<LoggingBucket> ManifestBucketLoggingPrefix=<LoggingPrefix> ManifestBucket=<ManifestBucket> LoggingLevel=DEBUG AssetBucket=<AssetTargetBucket> ProductEntityIds=<ProductEntityId> \n
+Parameters:
+  ManifestBucket:
+    Type: String
+    Default: 'my-test-manifest-bucket' // Name of the new bucket that will be created in this solution
+    Description: S3 Bucket name where .manifest files will be stored
+  AssetBucket:
+    Type: String
+    Default: 'my-asset-bucket-publisher-test' // Name of the existing bucket where new assets are added 
+    Description: Bucket containing assets and referenced in the manifest.  
+  ManifestBucketLoggingBucket:
+    Type: String
+    Default: 'my-test-manifest-logging-bucket' // Name of the existing bucket where activity logs will be saved
+    Description: Bucket to store server access logs associated with the manifest bucket
+  ManifestBucketLoggingPrefix:
+    Type: String
+    Default: 'my-publisher-coordinator-logs/' // Prefix string (including the trailing slash)
+    Description: Prefix location for server access logs associated with the manifest bucket
 ```
 
-## Building distributable for customization
-* Configure the bucket name of your target Amazon S3 distribution bucket
+
+## Building Cloudformation template with customization
+* Set environment variables:
 ```
-export DIST_OUTPUT_BUCKET=my-bucket-name # bucket where customized code will reside
+export CFN_CODE_BUCKET=my-bucket-name # bucket where customized code will reside
 export SOLUTION_NAME=my-solution-name
 export VERSION=my-version # version number for the customized code
 ```
-_Note:_ You would have to create an S3 bucket with the prefix 'my-bucket-name-<aws_region>'; aws_region is where you are testing the customized solution. Also, the assets in bucket should be publicly accessible.
+_Note:_ It is recommended to include the aws region in your bucket name, e.g. `my-bucket-name-<aws_region>`. Also, the assets in bucket should be publicly accessible.
 
-* Now build the distributable:
+* Now package the Lambda codes for upload:
 ```
-chmod +x ./build-s3-dist.sh \n
-./build-s3-dist.sh $DIST_OUTPUT_BUCKET $SOLUTION_NAME $VERSION \n
-```
-
-* Deploy the distributable to an Amazon S3 bucket in your account. _Note:_ you must have the AWS Command Line Interface installed.
-```
-aws s3 cp ./dist/ s3://my-bucket-name-<aws_region>/$SOLUTION_NAME/$VERSION/ --recursive --acl bucket-owner-full-control --profile aws-cred-profile-name \n
+chmod +x ./package-codes-for-upload.sh
+./package-codes-for-upload.sh $CFN_CODE_BUCKET $SOLUTION_NAME $VERSION
 ```
 
-* Get the link of the solution template uploaded to your Amazon S3 bucket.
-* Deploy the solution to your account by launching a new AWS CloudFormation stack using the link of the solution template in Amazon S3.
-
-*** 
-
-## File Structure
-
+* Upload the code to the `$CFN_CODE_BUCKET` S3 bucket in your account using the AWS CLI.
 ```
-Each microservice follows the structure of:
-
-```
-|-service-name/
-  |-app.py [Lambda function code]
-  |-requirements.txt [Python libraries used in function]
+aws s3 cp ./global-s3-assets s3://$CFN_CODE_BUCKET/$SOLUTION_NAME/$VERSION/ \
+    --recursive --acl bucket-owner-full-control
+aws s3 cp ./regional-s3-assets s3://$CFN_CODE_BUCKET/$SOLUTION_NAME/$VERSION/ \
+    --recursive --acl bucket-owner-full-control
 ```
 
-***
+* Use AWS SAM to build and deploy the Cloudformation template: 
+```
+cd source
+sam build
+sam package --s3-bucket $CFN_CODE_BUCKET \
+     --output-template ../local/aws-data-exchange-publisher-coordinator-SAM.template
+sam deploy --template-file ../local/aws-data-exchange-publisher-coordinator-SAM.template \
+    --region <Region> --stack-name <StackName> --capabilities CAPABILITY_IAM
+```
 
-
+```
 ##############################################################################
 #Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #

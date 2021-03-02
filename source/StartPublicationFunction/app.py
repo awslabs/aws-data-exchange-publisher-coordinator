@@ -25,7 +25,8 @@ import calendar
 import os
 import logging
 
-# This function triggers from an S3 event source when a manifest file is put in S3
+# This function triggers from an S3 event source when a manifest file for a new
+# revision is put in the ManifestBucket
 def lambda_handler(event, context):
     
     try:
