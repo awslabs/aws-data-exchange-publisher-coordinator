@@ -73,6 +73,11 @@ sam deploy --template-file ../local/aws-data-exchange-publisher-coordinator-SAM.
 ```
 
 ```
+
+This solution collects anonymous operational metrics to help AWS improve the
+quality of features of the solution. For more information, including how to disable
+this capability, please see the [implementation guide](_https://docs.aws.amazon.com/solutions/latest/aws-data-exchange-publisher-coordinator/collection-of-operational-metrics.html_).
+
 ##############################################################################
 #Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
