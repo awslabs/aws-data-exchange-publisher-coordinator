@@ -4,7 +4,7 @@ Description: >
   (SO0114) - Solution - Master Template
 
   Solution to publish a revision(s) based on a manifest object that contains a reference to all the assets.
-  
+
 Globals:
   Function:
     Timeout: 300
@@ -12,7 +12,7 @@ Parameters:
   ManifestBucket:
     Type: String
     Description: S3 Bucket name where .manifest files will be stored
-  LoggingLevel: 
+  LoggingLevel:
     Type: String
     Description: Minimum logging level to write out to CloudWatch
     AllowedValues:
@@ -24,7 +24,7 @@ Parameters:
     Default: INFO
   AssetBucket:
     Type: String
-    Description: Bucket containing assets and referenced in the manifest.  
+    Description: Bucket containing assets and referenced in the manifest.
   ManifestBucketLoggingBucket:
     Type: String
     Description: Bucket to store server access logs associated with the manifest bucket
@@ -74,7 +74,7 @@ Resources:
       CustomAction: "LifecycleMetric"
       Version: !FindInMap ["SolutionInformation", "SoltuionDetails", "Version"]
   CreateRevisionFunction:
-    Type: AWS::Serverless::Function 
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: CreateRevisionFunction/
       Handler: app.lambda_handler
@@ -113,12 +113,12 @@ Resources:
         - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
-        Statement : 
+        Statement :
           - Effect : Allow
-            Principal: 
+            Principal:
               Service:
                 - lambda.amazonaws.com
-            Action: 
+            Action:
               - 'sts:AssumeRole'
       Path: /
       Policies:
@@ -127,7 +127,7 @@ Resources:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
-                Action : 
+                Action :
                   - dataexchange:GetJob
                 Resource : '*'
     Metadata:
@@ -146,17 +146,17 @@ Resources:
           STATE_MACHINE_ARN : !Ref PublishRevisionStepFunction
           LOG_LEVEL : !Ref LoggingLevel
       Policies:
-            - StepFunctionsExecutionPolicy: 
-                StateMachineName : 
+            - StepFunctionsExecutionPolicy:
+                StateMachineName :
                   !GetAtt [PublishRevisionStepFunction, Name]
       Events:
         RevisionReady:
-          Type: S3 
+          Type: S3
           Properties:
-            Bucket: 
+            Bucket:
               Ref: DeploymentBucket
             Events: s3:ObjectCreated:*
-            Filter: 
+            Filter:
               S3Key:
                 Rules:
                   - Name: suffix
@@ -178,32 +178,32 @@ Resources:
         - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
-        Statement : 
+        Statement :
           - Effect : Allow
-            Principal: 
+            Principal:
               Service:
                 - lambda.amazonaws.com
-            Action: 
+            Action:
               - 'sts:AssumeRole'
       Path: /
       Policies:
           - PolicyName: MarketplaceActions
             PolicyDocument:
               Version: '2012-10-17'
-              Statement: 
+              Statement:
                 - Effect: Allow
-                  Action : 
+                  Action :
                     - dataexchange:UpdateRevision
-                  Resource : '*' 
+                  Resource : '*'
                 - Effect : Allow
-                  Action : 
+                  Action :
                     - aws-marketplace:StartChangeSet
                     - dataexchange:PublishDataSet
                     - aws-marketplace:DescribeEntity
                   Resource : '*'
     Metadata:
       cfn_nag:
-        rules_to_suppress:   
+        rules_to_suppress:
           - id: "W11"
             reason: "aws-marketplace:StartChangeSet and aws-marketplace:DescribeEntity do not accept resource level permissions. For dataexchange:UpdateRevision, the revisions are created at runtime and are not known a priori."
   DeploymentBucket:
@@ -211,10 +211,10 @@ Resources:
     Properties:
       BucketName: !Ref ManifestBucket
       BucketEncryption:
-        ServerSideEncryptionConfiguration: 
+        ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
-      VersioningConfiguration: 
+      VersioningConfiguration:
         Status: "Enabled"
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
@@ -228,7 +228,7 @@ Resources:
       cfn_nag:
         rules_to_suppress:
           - id: "W51"
-            reason: "There is no logical policy to apply."    
+            reason: "There is no logical policy to apply."
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
@@ -241,6 +241,15 @@ Resources:
           Effect: Deny
           Resource:
             Fn::Sub: arn:aws:s3:::${DeploymentBucket}/*
+          Principal: '*'
+          Condition:
+            Bool:
+              aws:SecureTransport: 'false'
+        - Sid: HttpsOnly
+          Action: '*'
+          Effect: Deny
+          Resource:
+            Fn::Sub: arn:aws:s3:::${DeploymentBucket}
           Principal: '*'
           Condition:
             Bool:
@@ -268,7 +277,7 @@ Resources:
                       "StringEquals" : "COMPLETED",
                       "Next" : "FinalizeAndUpdateCatalog"
                     },
-                    { 
+                    {
                       "Variable" : "$.JobStatus",
                       "StringEquals" : "IN_PROGRESS",
                       "Next" : "WaitProcessing"
@@ -323,7 +332,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - "lambda:InvokeFunction"
-                Resource: 
+                Resource:
                   - !GetAtt [ CreateRevisionFunction, Arn ]
                   - !GetAtt [ FinalizeAndUpdateCatalogFunction, Arn ]
                   - !GetAtt [ CheckJobStatusFunction, Arn ]
