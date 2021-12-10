@@ -1,6 +1,16 @@
 # aws-data-exchange-publisher-coordinator
 This package sets up Lambdas (via CloudFormation) to automatically execute the publication steps for new dataset revisions. Execution is triggered when an S3 manifest file for a new revision is uploaded to this bucket. 
 
+## Contributions
+<a href="https://www.rearc.io/data/">
+    <img src="https://www.rearc.io/wp-content/uploads/2018/11/Logo.png" alt="Rearc Logo" title="Rearc Logo" height="52" />
+</a>
+
+Significant contributions to this GitHub repository were made by [Rearc](https://www.rearc.io/data/).
+We'd like to thank Rearc for their work. Rearc offers further customizations to publisher-coordinator, as well as a fully managed AWS Data Exchange publishing solution.
+For more information you can reach Rearc at [data@rearc.io](mailto:data@rearc.io?subject=[GitHub]%20aws-data-exchange-publisher-coordinator)
+
+
 ## Prerequisites
 Read the [AWS Data Exchange Publisher Coordinator doc](https://docs.aws.amazon.com/solutions/latest/aws-data-exchange-publisher-coordinator/automated-deployment.html) which describes the architecture of the solution and prerequisites.  
 You should have:
