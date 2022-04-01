@@ -8,10 +8,10 @@ set -o errtrace
 SOLUTION_NAME='aws-data-exchange-publihser-coordinator' # name of the solution
 SOLUTION_VERSION='1.0.0' # version number for the source code
 SOURCE_CODE_BUCKET='<SOURCE_CODE_BUCKET_NAME>' # existing bucket where source code will reside
-MANIFEST_BUCKET='adx-publishing-flow-manifest-test' # new bucket that will be created in this solution
-ASSET_BUCKET='adx-publisher-coordinator-assets-bucket-1234' # Existing bucket where new assets are added.
-MANIFEST_BUCKET_LOGGING_BUCKET='adx-provider-coordinator-rearc-logging' # Existing bucket where activity logs will be saved.
-MANIFEST_BUCKET_LOGGING_PREFIX='adx-publishing-workflow-test-logs/' # Prefix string for manifest bucket access logs (including the trailing slash).
+MANIFEST_BUCKET='<MANIFEST_BUCKET>' # new bucket that will be created in this solution
+ASSET_BUCKET='<ASSET_BUCKET>' # Existing bucket where new assets are added.
+MANIFEST_BUCKET_LOGGING_BUCKET='<MANIFEST_BUCKET_LOGGING_BUCKET>' # Existing bucket where activity logs will be saved.
+MANIFEST_BUCKET_LOGGING_PREFIX='adx-publishing-workflow-logs/' # Prefix string for manifest bucket access logs (including the trailing slash).
 LOGGING_LEVEL='DEBUG' # Logging level of the solution; accepted values: [ DEBUG, INFO, WARNING, ERROR, CRITICAL ]
 ASSETS_PER_REVISION='10000' # Max number of Assets on a given ADX revision
 STACK_NAME='<CLOUDFORMATION_STACK_NAME>' # name of the cloudformation stack
